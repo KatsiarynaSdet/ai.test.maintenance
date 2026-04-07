@@ -1,0 +1,231 @@
+name: Playwright Tests
+
+on:
+  pull_request:
+    branches: [ main ]
+  push:
+    branches: [ main ]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: playwright-tests-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  playwright-tests:
+    name: playwright-tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    environment: github-pages
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+    env:
+      CI: "true"
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: lts/*
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Cache Playwright browsers
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-${{ runner.os }}-${{ hashFiles('**/package-lock.json') }}
+
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps
+
+      - name: Run Playwright tests
+        run: npx playwright test
+
+      - name: Collect test metrics
+        if: always()
+        run: |
+          echo "## Test Metrics" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+
+          if [ -f "playwright-report/data/test-results.json" ]; then
+            passed=$(jq '[.. | objects | select(.status? == "passed")] | length' playwright-report/data/test-results.json)
+            failed=$(jq '[.. | objects | select(.status? == "failed")] | length' playwright-report/data/test-results.json)
+            skipped=$(jq '[.. | objects | select(.status? == "skipped")] | length' playwright-report/data/test-results.json)
+            total=$((passed + failed + skipped))
+
+            echo "- Total: $total" >> "$GITHUB_STEP_SUMMARY"
+            echo "- Passed: $passed" >> "$GITHUB_STEP_SUMMARY"
+            echo "- Failed: $failed" >> "$GITHUB_STEP_SUMMARY"
+            echo "- Skipped: $skipped" >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "- No test results found" >> "$GITHUB_STEP_SUMMARY"
+          fi
+
+      - name: Upload Playwright HTML report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-html-report
+          path: playwright-report
+          if-no-files-found: warn
+
+      - name: Upload Playwright traces
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-traces
+          path: |
+            test-results/**/trace*.zip
+            test-results
+          if-no-files-found: warn
+
+      - name: Notify Microsoft Teams on failure
+        if: failure()
+        env:
+          TEAMS_WEBHOOK_URL: ${{ secrets.TEAMS_WEBHOOK_URL }}
+          PR_TITLE: ${{ github.event.pull_request.title || github.event.head_commit.message || 'Direct push to main' }}
+          PR_AUTHOR: ${{ github.event.pull_request.user.login || github.actor }}
+          BRANCH_NAME: ${{ github.head_ref || github.ref_name }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          payload=$(cat <<EOF
+          {
+            "@type": "MessageCard",
+            "@context": "http://schema.org/extensions",
+            "summary": "Playwright workflow failed",
+            "themeColor": "FF0000",
+            "title": "Playwright workflow failed",
+            "sections": [
+              {
+                "facts": [
+                  { "name": "Pull Request / Commit", "value": "${PR_TITLE}" },
+                  { "name": "Author", "value": "${PR_AUTHOR}" },
+                  { "name": "Branch", "value": "${BRANCH_NAME}" },
+                  { "name": "Workflow Run", "value": "${RUN_URL}" }
+                ]
+              }
+            ]
+          }
+          EOF
+          )
+          curl -H "Content-Type: application/json" -d "$payload" "$TEAMS_WEBHOOK_URL"
+
+      - name: Prepare Pages history
+        if: always() && github.ref == 'refs/heads/main'
+        env:
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          JOB_STATUS: ${{ job.status }}
+        run: |
+          mkdir -p playwright-report
+          history_file="playwright-report/history.json"
+          temp_history="$(mktemp)"
+          new_entry="$(mktemp)"
+
+          git fetch --no-tags origin gh-pages:refs/remotes/origin/gh-pages || true
+
+          if git rev-parse --verify origin/gh-pages >/dev/null 2>&1; then
+            if git show origin/gh-pages:history.json >/dev/null 2>&1; then
+              git show origin/gh-pages:history.json > "$temp_history"
+            else
+              echo '[]' > "$temp_history"
+            fi
+          else
+            echo '[]' > "$temp_history"
+          fi
+
+          passed_count=0
+          failed_count=0
+          skipped_count=0
+
+          if [ -f "playwright-report/data/test-results.json" ]; then
+            passed_count=$(jq '[.. | objects | select(has("status")) | .status | select(. == "passed")] | length' playwright-report/data/test-results.json 2>/dev/null || echo 0)
+            failed_count=$(jq '[.. | objects | select(has("status")) | .status | select(. == "failed" or . == "timedOut" or . == "interrupted")] | length' playwright-report/data/test-results.json 2>/dev/null || echo 0)
+            skipped_count=$(jq '[.. | objects | select(has("status")) | .status | select(. == "skipped")] | length' playwright-report/data/test-results.json 2>/dev/null || echo 0)
+          fi
+
+          jq -n \
+            --arg timestamp "$(date -u +"%Y-%m-%dT%H:%M:%SZ")" \
+            --arg runUrl "$RUN_URL" \
+            --arg sha "$GITHUB_SHA" \
+            --arg ref "$GITHUB_REF" \
+            --arg branch "${GITHUB_REF_NAME}" \
+            --arg conclusion "$JOB_STATUS" \
+            --argjson passed "$passed_count" \
+            --argjson failed "$failed_count" \
+            --argjson skipped "$skipped_count" \
+            '{
+              timestamp: $timestamp,
+              run_url: $runUrl,
+              sha: $sha,
+              ref: $ref,
+              branch: $branch,
+              conclusion: $conclusion,
+              counts: {
+                passed: $passed,
+                failed: $failed,
+                skipped: $skipped
+              }
+            }' > "$new_entry"
+
+          jq --slurp '.[0] + [.[1]]' "$temp_history" "$new_entry" > "$history_file"
+
+      - name: Upload Pages artifact
+        if: always() && github.ref == 'refs/heads/main'
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: playwright-report/
+
+      - name: Deploy to GitHub Pages
+        if: always() && github.ref == 'refs/heads/main'
+        id: deployment
+        uses: actions/deploy-pages@v4
+
+  security-scan:
+    name: security-scan
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    continue-on-error: false
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: lts/*
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run dependency vulnerability scan
+        run: |
+          npm audit --audit-level=high > audit.txt 2>&1
+          audit_exit_code=$?
+
+          {
+            echo "## Security Scan Summary"
+            echo
+            if [ $audit_exit_code -eq 0 ]; then
+              echo "- No high or critical vulnerabilities detected."
+            else
+              echo "- High or critical vulnerabilities were detected."
+              echo
+              echo '```'
+              sed -n '1,200p' audit.txt
+              echo '```'
+            fi
+          } >> "$GITHUB_STEP_SUMMARY"
+
+          exit $audit_exit_code
