@@ -2,9 +2,9 @@ name: Playwright Tests
 
 on:
   pull_request:
-    branches: [ main ]
+    branches: [ master ]
   push:
-    branches: [ main ]
+    branches: [ master ]
 
 permissions:
   contents: read
@@ -93,7 +93,7 @@ jobs:
         if: failure()
         env:
           TEAMS_WEBHOOK_URL: ${{ secrets.TEAMS_WEBHOOK_URL }}
-          PR_TITLE: ${{ github.event.pull_request.title || github.event.head_commit.message || 'Direct push to main' }}
+          PR_TITLE: ${{ github.event.pull_request.title || github.event.head_commit.message || 'Direct push to master' }}
           PR_AUTHOR: ${{ github.event.pull_request.user.login || github.actor }}
           BRANCH_NAME: ${{ github.head_ref || github.ref_name }}
           RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
@@ -121,7 +121,7 @@ jobs:
           curl -H "Content-Type: application/json" -d "$payload" "$TEAMS_WEBHOOK_URL"
 
       - name: Prepare Pages history
-        if: always() && github.ref == 'refs/heads/main'
+        if: always() && github.ref == 'refs/heads/master'
         env:
           RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
           JOB_STATUS: ${{ job.status }}
@@ -180,13 +180,13 @@ jobs:
           jq --slurp '.[0] + [.[1]]' "$temp_history" "$new_entry" > "$history_file"
 
       - name: Upload Pages artifact
-        if: always() && github.ref == 'refs/heads/main'
+        if: always() && github.ref == 'refs/heads/master'
         uses: actions/upload-pages-artifact@v3
         with:
           path: playwright-report/
 
       - name: Deploy to GitHub Pages
-        if: always() && github.ref == 'refs/heads/main'
+        if: always() && github.ref == 'refs/heads/master'
         id: deployment
         uses: actions/deploy-pages@v4
 
