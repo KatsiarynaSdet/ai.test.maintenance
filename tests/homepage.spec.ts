@@ -10,7 +10,7 @@ test.describe('Playwright Homepage Tests', () => {
   });
 
   test('should display homepage title', async ({ page }) => {
-    await expect(page).toHaveTitle(/Playwrighte/i);
+    await expect(page).toHaveTitle(/Playwright/i);
   });
 
   test('should display homepage hero heading', async () => {

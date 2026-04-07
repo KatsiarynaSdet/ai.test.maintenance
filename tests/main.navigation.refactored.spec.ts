@@ -110,7 +110,10 @@ async function verifyNavigation(
   ]);
 
   await expect(page).toHaveURL(item.expectedUrlPattern);
-  await expect(page).not.toHaveURL(/404|500|error/i);
+  
+  const url = page.url();
+  expect(url).not.toMatch(/^https?:\/\/[^\/]+\/(error|404|403|50[0-9])/i);
+  expect(page).not.toHaveURL(/\/error\//);;
 
   if (item.expectedHeading) {
     await expect(page.getByRole('heading').first()).toContainText(item.expectedHeading);

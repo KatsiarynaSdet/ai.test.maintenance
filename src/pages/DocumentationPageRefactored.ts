@@ -28,8 +28,8 @@ export class DocumentationPage {
     this.main = page.locator('main');
     this.primaryHeading = page.getByRole('heading', { level: 1 }).first();
     this.article = page.locator('article').first();
-    this.breadcrumbs = page.locator('nav[aria-label*="breadcrumb" i], .breadcrumbs, [class*="breadcrumb"]').first();
-    this.tableOfContents = page.locator('aside, nav').filter({ hasText: /introduction|on this page|contents/i }).first();
+    this.breadcrumbs = page.getByRole('navigation', { name: /breadcrumb/i });
+    this.tableOfContents = page.getByRole('navigation', { name: /on this page|contents/i });
   }
 
   async verifyDocumentationControlReady(options: DocumentationPageOptions = {}): Promise<void> {
