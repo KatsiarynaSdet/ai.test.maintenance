@@ -5,7 +5,7 @@ import { defineConfig, devices } from '@playwright/test';
  * Configured to run on Chromium only
  */
 export default defineConfig({
-  testDir: './src/tests',
+  testDir: './tests',
   fullyParallel: false,
   forbidOnly: !!process.env['CI'],
   retries: process.env['CI'] ? 2 : 0,
