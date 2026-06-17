@@ -5,7 +5,7 @@ test.describe('Documentation', () => {
   test('should open documentation page and display content', async ({ page }) => {
     const documentationPage = new DocumentationPage(page);
 
-    await page.goto('https://playwright.dev/docs/intro');
+    await page.goto('/docs/intro');
 
     await documentationPage.verifyDocumentationControlReady({expectedHeading: /installation|introduction/i});
   });

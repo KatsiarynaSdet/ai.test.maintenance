@@ -37,8 +37,8 @@ const NAVIGATION_EXPECTATIONS: NavigationExpectation[] = [
     requirementId: 'TC-NAV-001',
     key: 'community',
     expectedAccessibleName: /community/i,
-    expectedHrefFragment: 'community',
-    expectedUrlPattern: /community/i,
+    expectedHrefFragment: '/community',
+ expectedUrlPattern: /\/community(\/|$)/i,
     expectedHeading: /Welcome/i,
   },
 ];

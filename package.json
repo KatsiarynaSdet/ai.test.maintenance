@@ -19,5 +19,8 @@
     "@playwright/test": "^1.48.2",
     "@types/node": "^20.19.39",
     "typescript": "^5.4.5"
+  },
+  "dependencies": {
+    "dotenv": "^17.4.2"
   }
 }

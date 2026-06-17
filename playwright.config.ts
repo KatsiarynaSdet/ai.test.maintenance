@@ -1,9 +1,12 @@
 import { defineConfig, devices } from '@playwright/test';
+import * as dotenv from 'dotenv'
 
 /**
  * Playwright configuration for TypeScript tests
  * Configured to run on Chromium only
  */
+dotenv.config() 
+
 export default defineConfig({
   testDir: './tests',
   fullyParallel: false,
@@ -12,14 +15,14 @@ export default defineConfig({
   workers: process.env['CI'] ? 3 : 3,
   reporter: 'html',
   use: {
-    baseURL: 'https://playwright.dev',
+    baseURL: process.env.BASE_URL ?? 'https://playwright.dev',
     trace: 'on-first-retry',
   },
 
   projects: [
     {
       name: 'chromium',
-      use: { ...devices['desktop'] },
+      use: { ...devices['Desktop Chrome'] },
     },
   ],
 

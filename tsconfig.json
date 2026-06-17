@@ -15,6 +15,6 @@
     "ignoreDeprecations": "6.0",
     "types": ["node"]
   },
-  "include": ["tests", "playwright.config.ts", "tests/pages"],
+  "include": ["tests", "playwright.config.ts", "src/pages"],
   "exclude": ["node_modules"]
 }
