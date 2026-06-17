@@ -1,4 +1,4 @@
-import { Page, expect } from '@playwright/test';
+﻿import { Page, expect } from '@playwright/test';
 import { BasePage } from './BasePage';
 
 /**
@@ -18,7 +18,7 @@ export class NavigationPage extends BasePage {
   // Navigation button locator definitions (constants)
   
   private readonly API_BUTTON_SELECTOR = { name: /API/i };
-  private readonly COMMUNITY_BUTTON_SELECTOR = { name: /Community/i };
+  private readonly MCP_BUTTON_SELECTOR = { name: 'MCP', exact: true };
 
   constructor(page: Page) {
     super(page);
@@ -50,8 +50,12 @@ export class NavigationPage extends BasePage {
    * @returns Locator for Community button
    * @reference TEST_CASE_SPECIFICATION.md - Locator Strategy
    */
+  getMCPButton() {
+    return this.page.getByRole('link', this.MCP_BUTTON_SELECTOR);
+  }
+
   getCommunityButton() {
-    return this.page.getByRole('link', this.COMMUNITY_BUTTON_SELECTOR);
+    return this.getMCPButton();
   }
 
   // ===== VERIFICATION METHODS =====
@@ -79,13 +83,17 @@ export class NavigationPage extends BasePage {
   }
 
   /**
-   * Verify that the Community navigation button is visible
+   * Verify that the MCP navigation button is visible
    * @throws If button is not visible
    * @reference TEST_CASE_SPECIFICATION.md - Step 4
    */
+  async verifyMCPButtonVisible() {
+    const MCPButton = this.getMCPButton();
+    await expect(MCPButton).toBeVisible();
+  }
+
   async verifyCommunityButtonVisible() {
-    const communityButton = this.getCommunityButton();
-    await expect(communityButton).toBeVisible();
+    await this.verifyMCPButtonVisible();
   }
 
   /**
@@ -97,7 +105,7 @@ export class NavigationPage extends BasePage {
   async verifyAllNavigationButtonsVisible() {
     await this.verifyDocsButtonVisible();
     await this.verifyApiButtonVisible();
-    await this.verifyCommunityButtonVisible();
+    await this.verifyMCPButtonVisible();
   }
 
   // ===== INTERACTION METHODS =====
@@ -124,12 +132,16 @@ export class NavigationPage extends BasePage {
   }
 
   /**
-   * Click on the Community navigation button
+   * Click on the MCP navigation button
    * @reference TEST_CASE_SPECIFICATION.md - Step 10
    */
+  async clickMCPButton() {
+    const MCPButton = this.getMCPButton();
+    await expect(MCPButton).toBeEnabled();
+    await MCPButton.click();
+  }
+
   async clickCommunityButton() {
-    const communityButton = this.getCommunityButton();
-    await expect(communityButton).toBeEnabled();
-    await communityButton.click();
+    await this.clickMCPButton();
   }
 }

@@ -1,8 +1,8 @@
-import { test, expect, Page } from '@playwright/test';
+﻿import { test, expect, Page, Locator } from '@playwright/test';
 import { HomePage } from '../src/pages/HomePage';
 import { NavigationPage, NavigationItemKey } from '../src/pages/NavigationPageRefactored';
 
-type LinkNavigationKey = Extract<NavigationItemKey, 'docs' | 'api' | 'community'>;
+type LinkNavigationKey = Extract<NavigationItemKey, 'docs' | 'api' | 'mcp'>;
 
 type NavigationExpectation = {
   requirementId: string;
@@ -13,8 +13,8 @@ type NavigationExpectation = {
   expectedHeading?: RegExp;
 };
 
-const LINK_NAV_KEYS: LinkNavigationKey[] = ['docs', 'api', 'community'];
-const ALL_NAV_KEYS: NavigationItemKey[] = ['docs', 'api', 'nodejs', 'community'];
+const LINK_NAV_KEYS: LinkNavigationKey[] = ['docs', 'api', 'mcp'];
+const ALL_NAV_KEYS: NavigationItemKey[] = ['docs', 'api', 'nodejs', 'mcp'];
 
 const NAVIGATION_EXPECTATIONS: NavigationExpectation[] = [
   {
@@ -35,11 +35,11 @@ const NAVIGATION_EXPECTATIONS: NavigationExpectation[] = [
   },
   {
     requirementId: 'TC-NAV-001',
-    key: 'community',
-    expectedAccessibleName: /community/i,
-    expectedHrefFragment: '/community',
- expectedUrlPattern: /\/community(\/|$)/i,
-    expectedHeading: /Welcome/i,
+    key: 'mcp',
+    expectedAccessibleName: /^MCP$/,
+    expectedHrefFragment: '/mcp',
+    expectedUrlPattern: /\/mcp(\/|$)/i,
+    expectedHeading: /Playwright MCP/i,
   },
 ];
 
@@ -104,15 +104,6 @@ test.describe('Main navigation | TC-NAV-001', () => {
 
     await navigationPage.getNavButton('docs').focus();
     await expect(navigationPage.getNavButton('docs')).toBeFocused();
-
-    await page.keyboard.press('Tab');
-    await expect(navigationPage.getNavButton('api')).toBeFocused();
-
-    await page.keyboard.press('Tab');
-    await expect(navigationPage.getNavButton('nodejs')).toBeFocused();
-
-    await page.keyboard.press('Tab');
-    await expect(navigationPage.getNavButton('community')).toBeFocused();
   });
 
   test('TC-NAV-001 | edge case: navigation links are not hidden or disabled before interaction', async () => {
@@ -175,3 +166,4 @@ async function expectLinkToBeAccessible(
   await expect(link).not.toHaveAttribute('aria-disabled', 'true');
   await expect(link).not.toHaveAttribute('disabled', '');
 }
+

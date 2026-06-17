@@ -1,7 +1,7 @@
-// pages/NavigationPageRefactored.ts
+﻿// pages/NavigationPageRefactored.ts
 import { expect, Locator, Page } from '@playwright/test';
 
-export type NavigationItemKey = 'docs' | 'api' | 'nodejs' | 'community';
+export type NavigationItemKey = 'docs' | 'api' | 'nodejs' | 'mcp';
 type NavigationItemType = 'link' | 'dropdown';
 
 type NavigationItemConfig = {
@@ -26,10 +26,10 @@ export class NavigationPage {
       name: /^Node\.js$/i,
       type: 'dropdown',
     },
-    community: {
-      name: /^Community$/i,
+    mcp: {
+      name: /^MCP$/i,
       type: 'link',
-      hrefFragment: 'community',
+      hrefFragment: 'mcp',
     },
   };
 
@@ -59,8 +59,8 @@ export class NavigationPage {
     return this.getNavButton('nodejs');
   }
 
-  getCommunityButton(): Locator {
-    return this.getNavButton('community');
+  getMCPButton(): Locator {
+    return this.getNavButton('mcp');
   }
 
   async clickNavButton(key: NavigationItemKey): Promise<void> {

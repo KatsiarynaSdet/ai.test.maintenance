@@ -1,4 +1,4 @@
-import { test, expect } from '@playwright/test';
+﻿import { test, expect } from '@playwright/test';
 import { HomePage } from '../src/pages/HomePage';
 
 test.describe('Playwright Homepage Tests', () => {
@@ -28,3 +28,4 @@ test.describe('Playwright Homepage Tests', () => {
     await expect(page).toHaveURL(/\/docs\/intro/);
   });
 });
+

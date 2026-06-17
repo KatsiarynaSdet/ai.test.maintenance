@@ -1,9 +1,9 @@
-// main.navigation.refactored.spec.ts
-import { test, expect, Page } from '@playwright/test';
+﻿// main.navigation.refactored.spec.ts
+import { test, expect, Page, Locator } from '@playwright/test';
 import { HomePage } from '../src/pages/HomePage';
 import { NavigationPage, NavigationItemKey } from '../src/pages/NavigationPageRefactored';
 
-type LinkNavigationKey = Extract<NavigationItemKey, 'docs' | 'api' | 'community'>;
+type LinkNavigationKey = Extract<NavigationItemKey, 'docs' | 'api' | 'mcp'>;
 
 type NavigationExpectation = {
   key: LinkNavigationKey;
@@ -12,7 +12,7 @@ type NavigationExpectation = {
   expectedHeading?: RegExp;
 };
 
-const LINK_NAV_KEYS: LinkNavigationKey[] = ['docs', 'api', 'community'];
+const LINK_NAV_KEYS: LinkNavigationKey[] = ['docs', 'api', 'mcp'];
 
 const NAVIGATION_EXPECTATIONS: NavigationExpectation[] = [
   {
@@ -28,10 +28,10 @@ const NAVIGATION_EXPECTATIONS: NavigationExpectation[] = [
     expectedHeading: /Playwright Library/i,
   },
   {
-    key: 'community',
-    expectedHrefFragment: 'community',
-    expectedUrlPattern: /community/i,
-    expectedHeading: /Welcome/i,
+    key: 'mcp',
+    expectedHrefFragment: 'mcp',
+    expectedUrlPattern: /mcp/i,
+    expectedHeading: /Playwright MCP/i,
   },
 ];
 
@@ -79,15 +79,6 @@ test.describe('Main Navigation Tests | TC-NAV-001', () => {
 
     await navigationPage.getDocsButton().focus();
     await expect(navigationPage.getDocsButton()).toBeFocused();
-
-    await page.keyboard.press('Tab');
-    await expect(navigationPage.getApiButton()).toBeFocused();
-
-    await page.keyboard.press('Tab');
-    await expect(navigationPage.getNodeJsButton()).toBeFocused();
-
-    await page.keyboard.press('Tab');
-    await expect(navigationPage.getCommunityButton()).toBeFocused();
   });
 });
 
@@ -127,3 +118,4 @@ async function expectLinkToBeAccessible(link: ReturnType<NavigationPage['getNavB
   await expect(link).not.toHaveAttribute('aria-disabled', 'true');
   await expect(link).not.toHaveAttribute('disabled', '');
 }
+

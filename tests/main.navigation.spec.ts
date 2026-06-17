@@ -1,4 +1,4 @@
-import { test, expect } from '@playwright/test';
+﻿import { test, expect } from '@playwright/test';
 import { HomePage } from '../src/pages/HomePage';
 import { NavigationPage } from '../src/pages/NavigationPage';
 
@@ -46,12 +46,12 @@ test.describe('Main Navigation Tests | TC-NAV-001', () => {
     // Expected: Button renders with accessible text
     await navigationPage.verifyDocsButtonVisible();
     await navigationPage.verifyApiButtonVisible();
-    await navigationPage.verifyCommunityButtonVisible();
+    await navigationPage.verifyMCPButtonVisible();
     
     // Additional verification: Buttons should be in viewport
     await expect(navigationPage.getDocsButton()).toBeInViewport();
     await expect(navigationPage.getApiButton()).toBeInViewport();
-    await expect(navigationPage.getCommunityButton()).toBeInViewport();
+    await expect(navigationPage.getMCPButton()).toBeInViewport();
   });
 
   /**
@@ -103,9 +103,9 @@ test.describe('Main Navigation Tests | TC-NAV-001', () => {
   });
 
   /**
-   * TEST: Community Navigation Button
+   * TEST: MCP navigation Button
    * REFERENCE: TEST_CASE_SPECIFICATION.md - Step 10
-   * TITLE: Community navigation button should be visible and clickable
+   * TITLE: MCP navigation button should be visible and clickable
    * 
    * Expected Results:
    * - Button exists and is visible
@@ -113,17 +113,17 @@ test.describe('Main Navigation Tests | TC-NAV-001', () => {
    * - URL contains /community
    * - Navigation completes within 3 seconds
    */
-  test('TC-NAV-001-03: Community navigation button should be visible and navigate to community', async ({ page }) => {
-    // Step 5: Verify Community button exists and is visible
-    await navigationPage.verifyCommunityButtonVisible();
+  test('TC-NAV-001-03: MCP navigation button should be visible and navigate to MCP introduction', async ({ page }) => {
+    // Step 5: Verify MCP button exists and is visible
+    await navigationPage.verifyMCPButtonVisible();
     
-    // Step 10: Click Community button and verify navigation
+    // Step 10: Click MCP button and verify navigation
     const navigationPromise = page.waitForNavigation({ waitUntil: 'domcontentloaded', timeout: 3000 }).catch(() => null);
-    await navigationPage.clickCommunityButton();
+    await navigationPage.clickMCPButton();
     await navigationPromise;
     
-    // Expected: Page navigates to URL containing /community
-    await expect(page).toHaveURL(/community/i);
+    // Expected: Page navigates to URL containing /mcp
+    await expect(page).toHaveURL(/mcp/i);
   });
 
   /**
@@ -141,17 +141,17 @@ test.describe('Main Navigation Tests | TC-NAV-001', () => {
     // Verify semantic role and accessible names
     const docsButton = navigationPage.getDocsButton();
     const apiButton = navigationPage.getApiButton();
-    const communityButton = navigationPage.getCommunityButton();
+    const MCPButton = navigationPage.getMCPButton();
 
     // Verify href attributes exist (semantic links)
     await expect(docsButton).toHaveAttribute('href');
     await expect(apiButton).toHaveAttribute('href');
-    await expect(communityButton).toHaveAttribute('href');
+    await expect(MCPButton).toHaveAttribute('href');
 
     // Verify accessible names present
     const docsText = await docsButton.textContent();
     const apiText = await apiButton.textContent();
-    const communityText = await communityButton.textContent();
+    const communityText = await MCPButton.textContent();
 
     expect(docsText?.trim().length).toBeGreaterThan(0);
     expect(apiText?.trim().length).toBeGreaterThan(0);
@@ -160,12 +160,12 @@ test.describe('Main Navigation Tests | TC-NAV-001', () => {
     // Verify not disabled
     await expect(docsButton).not.toHaveAttribute('disabled');
     await expect(apiButton).not.toHaveAttribute('disabled');
-    await expect(communityButton).not.toHaveAttribute('disabled');
+    await expect(MCPButton).not.toHaveAttribute('disabled');
 
     // Verify keyboard accessibility (focusable links)
     const docsTabIndex = await docsButton.getAttribute('tabindex');
     const apiTabIndex = await apiButton.getAttribute('tabindex');
-    const communityTabIndex = await communityButton.getAttribute('tabindex');
+    const communityTabIndex = await MCPButton.getAttribute('tabindex');
 
     // Links should be focusable (tabindex not less than -1)
     if (docsTabIndex) expect(parseInt(docsTabIndex)).toBeGreaterThanOrEqual(-1);
@@ -173,3 +173,4 @@ test.describe('Main Navigation Tests | TC-NAV-001', () => {
     if (communityTabIndex) expect(parseInt(communityTabIndex)).toBeGreaterThanOrEqual(-1);
   });
 });
+

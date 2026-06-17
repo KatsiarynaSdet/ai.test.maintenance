@@ -1,4 +1,4 @@
-import { test, expect } from '@playwright/test';
+﻿import { test, expect } from '@playwright/test';
 import { DocumentationPage } from '../src/pages/DocumentationPageRefactored';
 
 test.describe('Documentation', () => {
@@ -10,3 +10,4 @@ test.describe('Documentation', () => {
     await documentationPage.verifyDocumentationControlReady({expectedHeading: /installation|introduction/i});
   });
 });
+

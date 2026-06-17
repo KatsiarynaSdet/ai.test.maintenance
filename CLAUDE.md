@@ -7,6 +7,9 @@
 - Validate Content-Type on all endpoints
 - Retries → exponential backoff
 
+## External test sites
+- tests/documentation.spec.ts targets external site playwright.dev — hardcoded URL is intentional
+
 ## Ignore
 - generated/**
 - migrations/**
@@ -15,7 +18,7 @@
 BLOCK:
 - SQL injection
 - hardcoded secrets
-- swallowed exceptions
+- swallowed exceptions (including .catch(() => null) in tests)
 - float money
 
 WARN:
