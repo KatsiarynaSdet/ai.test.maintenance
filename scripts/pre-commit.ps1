@@ -18,12 +18,27 @@ if (-not (Get-Command claude -ErrorAction SilentlyContinue)) {
     Write-Host "WARNING: claude not found, skipping review." -ForegroundColor Yellow
     exit 0
 }
+
 Write-Host "Running Claude code review..." -ForegroundColor Cyan
-$RESULT = $DIFF | claude --agent code-reviewer --print 2>$null
-Write-Host $RESULT
-if ($RESULT -match "BLOCK") {
-    Write-Host "❌ Commit blocked by Claude. Fix issues or skip with: git commit --no-verify" -ForegroundColor Red
+$AGENT_PROMPT = Get-Content ".claude/agents/code-reviewer.md" -Raw
+$PROMPT = "$AGENT_PROMPT`n`nReview this diff:`n`n$DIFF"
+$RESULT = $PROMPT | claude --print 2>$null
+
+try {
+    $CLEAN = $RESULT -replace '```json', '' -replace '```', '' 
+    $CLEAN = $CLEAN.Trim()
+    $JSON = $CLEAN | ConvertFrom-Json
+    if ($JSON.verdict -eq "BLOCK") {
+        Write-Host "❌ Commit blocked:" -ForegroundColor Red
+        $JSON.issues | Where-Object { $_.severity -eq "BLOCK" } | ForEach-Object {
+            Write-Host "  - $($_.message)" -ForegroundColor Red
+        }
+        exit 1
+    }
+    Write-Host "✅ LGTM - commit allowed" -ForegroundColor Green
+    exit 0
+} catch {
+    Write-Host "⚠️ Could not parse Claude response, blocking commit." -ForegroundColor Red
+    Write-Host $RESULT
     exit 1
 }
-Write-Host "✅ LGTM - commit allowed" -ForegroundColor Green
-exit 0
