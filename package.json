@@ -6,7 +6,9 @@
     "test": "playwright test",
     "test:debug": "playwright test --debug",
     "test:ui": "playwright test --ui",
-    "test:headed": "playwright test --headed"
+    "test:headed": "playwright test --headed",
+    "lint": "eslint src/ tests/",
+    "lint:fix": "eslint src/ tests/ --fix"
   },
   "keywords": [
     "playwright",
@@ -16,8 +18,12 @@
   "author": "",
   "license": "ISC",
   "devDependencies": {
+    "@eslint/js": "^10.0.1",
     "@playwright/test": "^1.48.2",
     "@types/node": "^20.19.39",
+    "@typescript-eslint/eslint-plugin": "^8.61.1",
+    "@typescript-eslint/parser": "^8.61.1",
+    "eslint": "^9.0.0",
     "typescript": "^5.4.5"
   },
   "dependencies": {

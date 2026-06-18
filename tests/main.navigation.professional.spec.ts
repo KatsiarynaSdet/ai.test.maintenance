@@ -1,4 +1,4 @@
-﻿import { test, expect, Page, Locator } from '@playwright/test';
+﻿import { test, expect, Page } from '@playwright/test';
 import { HomePage } from '../src/pages/HomePage';
 import { NavigationPage, NavigationItemKey } from '../src/pages/NavigationPageRefactored';
 
@@ -80,7 +80,7 @@ test.describe('Main navigation | TC-NAV-001', () => {
     });
   }
 
-  test('TC-NAV-001 | navigation controls expose semantic names and predictable keyboard order', async ({ page }) => {
+  test('TC-NAV-001 | navigation controls expose semantic names and predictable keyboard order', async () => {
     // Traceability:
     // - TC-NAV-001.4: link controls expose accessible link semantics
     // - TC-NAV-001.5: keyboard users can move through navigation in the intended order

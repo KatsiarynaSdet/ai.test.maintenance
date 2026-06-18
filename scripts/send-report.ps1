@@ -5,7 +5,7 @@ param(
     [string]$message = "QA Pipeline report"
 )
 
-# загружаем .env
+# load .env
 Get-Content .env | ForEach-Object {
     if ($_ -match '^(.+?)=(.+)$') {
         [System.Environment]::SetEnvironmentVariable($matches[1], $matches[2])

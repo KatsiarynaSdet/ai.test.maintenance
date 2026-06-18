@@ -41,7 +41,7 @@ test.describe('Main Navigation Tests | TC-NAV-001', () => {
    * ✓ Each button is in the DOM with correct accessible name
    * ✓ Each button is not disabled or hidden
    */
-  test('TC-NAV-001: All navigation buttons should be visible on main page', async ({ page }) => {
+  test('TC-NAV-001: All navigation buttons should be visible on main page', async () => {
     // Step 2-5: Verify Docs, API, Community buttons are visible
     // Expected: Button renders with accessible text
     await navigationPage.verifyDocsButtonVisible();

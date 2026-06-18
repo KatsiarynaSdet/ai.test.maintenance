@@ -45,7 +45,7 @@ function Append-Utf8File {
     [System.IO.File]::AppendAllText($Path, $normalized, $utf8NoBom)
 }
 
-# --- вычисляем корень проекта надёжно ---
+# --- reliably compute the project root ---
 $scriptPath = $MyInvocation.MyCommand.Path
 $scriptDir = Split-Path -Parent $scriptPath
 $root = if ((Split-Path -Leaf $scriptDir) -eq "scripts") {
@@ -57,12 +57,12 @@ $root = if ((Split-Path -Leaf $scriptDir) -eq "scripts") {
 Write-Host "Root: $root" -ForegroundColor Gray
 Write-Host "Setting up AI code review pipeline..." -ForegroundColor Cyan
 
-# --- проверяем зависимости ---
+# --- check dependencies ---
 if (-not (Get-Command claude -ErrorAction SilentlyContinue)) {
     Write-Host "WARNING: claude not found. Install: npm install -g @anthropic-ai/claude-code" -ForegroundColor Yellow
 }
 
-# --- загружаем .env в начале ---
+# --- load .env at the start ---
 if (Test-Path "$root\.env") {
     Get-Content "$root\.env" | ForEach-Object {
         if ($_ -match '^([^#].+?)=(.+)$') {
@@ -76,7 +76,7 @@ if (Test-Path "$root\.env") {
     Write-Host "   SLACK_WEBHOOK_URL=https://hooks.slack.com/..." -ForegroundColor Gray
 }
 
-# --- создаём папки ---
+# --- create folders ---
 @(
     ".claude\agents",
     ".claude\skills",

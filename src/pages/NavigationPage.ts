@@ -19,6 +19,7 @@ export class NavigationPage extends BasePage {
   
   private readonly API_BUTTON_SELECTOR = { name: /API/i };
   private readonly MCP_BUTTON_SELECTOR = { name: 'MCP', exact: true };
+  private readonly DOCS_BUTTON_VISIBLE_TIMEOUT_MS = 2000;
 
   constructor(page: Page) {
     super(page);
@@ -68,7 +69,7 @@ export class NavigationPage extends BasePage {
    */
   async verifyDocsButtonVisible() {
     const docsButton = this.getDocsButton();
-    await this.page.waitForTimeout(2000);
+    await this.page.waitForTimeout(this.DOCS_BUTTON_VISIBLE_TIMEOUT_MS);
     await expect(docsButton).toBeVisible();
   }
 

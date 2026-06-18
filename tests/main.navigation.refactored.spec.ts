@@ -1,5 +1,5 @@
 ﻿// main.navigation.refactored.spec.ts
-import { test, expect, Page, Locator } from '@playwright/test';
+import { test, expect, Page } from '@playwright/test';
 import { HomePage } from '../src/pages/HomePage';
 import { NavigationPage, NavigationItemKey } from '../src/pages/NavigationPageRefactored';
 
@@ -66,7 +66,7 @@ test.describe('Main Navigation Tests | TC-NAV-001', () => {
     });
   }
 
-  test('TC-NAV-001-A11Y: Navigation buttons should expose semantic links and basic keyboard accessibility', async ({ page }) => {
+  test('TC-NAV-001-A11Y: Navigation buttons should expose semantic links and basic keyboard accessibility', async () => {
     for (const key of LINK_NAV_KEYS) {
       await expectLinkToBeAccessible(navigationPage.getNavButton(key));
     }
