@@ -346,7 +346,7 @@ When asked to analyze test results, failures, or test output.
 Summary → Patterns → Recommendations
 "@
 
-Write-Utf8File "$root\.claude\skills\generate-test-cases.md" @"
+Write-Utf8File "$root\.claude\skills\generate-autotests.md" @"
 # generate-test-cases
 
 ## When to apply

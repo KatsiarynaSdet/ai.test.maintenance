@@ -11,4 +11,5 @@ update-readme.ps1
 slnx.sqlite
 *.vsidx
 DocumentLayout.backup.json
-.playwright-mcp/ 
+.playwright-mcp/
+logs/

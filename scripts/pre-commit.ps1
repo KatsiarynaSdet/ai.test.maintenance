@@ -9,7 +9,7 @@ if ($LASTEXITCODE -ne 0) {
 }
 Write-Host "✅ ESLint passed" -ForegroundColor Green
 
-# Step 2: Claude code-reviewer — deeper analysis
+# Prepare Claude review input
 $DIFF = git diff --cached --unified=3
 if (-not $DIFF) {
     Write-Host "No staged changes, skipping Claude review."
@@ -49,9 +49,35 @@ Write-Host "✅ Semgrep passed" -ForegroundColor Green
 
 # Step 3 Claude code reviewer - deep analysis
 Write-Host "Running Claude code review..." -ForegroundColor Cyan
-$AGENT_PROMPT = Get-Content ".claude/agents/code-reviewer.md" -Raw
-$PROMPT = "$AGENT_PROMPT`n`nReview this diff:`n`n$DIFF"
-$RESULT = $PROMPT | claude --print 2>$null
+
+$REVIEW_REQUEST = @"
+Review the following staged git diff.
+
+Return ONLY valid JSON matching the code-reviewer schema.
+Do not include markdown, prose, or code fences.
+
+DIFF:
+$DIFF
+"@
+
+$RESULT = $REVIEW_REQUEST | claude --agent code-reviewer --print 2>$null
+$CLAUDE_EXIT = $LASTEXITCODE
+
+$LOG_DIR = "$PSScriptRoot\..\logs"
+if (-not (Test-Path $LOG_DIR)) {
+    New-Item -ItemType Directory -Path $LOG_DIR | Out-Null
+}
+$LOG_FILE = "$LOG_DIR\claude-review-raw.log"
+@"
+[$(Get-Date -Format o)] claude exit code: $CLAUDE_EXIT
+----- RAW RESPONSE START -----
+$RESULT
+----- RAW RESPONSE END -----
+"@ | Set-Content -Path $LOG_FILE -Encoding utf8
+
+Write-Host "--- Raw Claude response (exit code $CLAUDE_EXIT) ---" -ForegroundColor DarkGray
+Write-Host $RESULT
+Write-Host "--- End raw Claude response (logged to $LOG_FILE) ---" -ForegroundColor DarkGray
 
 try {
     $CLEAN = $RESULT -replace '```json', '' -replace '```', ''
