@@ -1,0 +1,18 @@
+anti_patterns:
+  god_class:
+    severity: high
+    threshold: 500  # lines
+    action: block
+  swallowed_exception:
+    severity: high
+    action: block
+  primitive_obsession:
+    severity: medium
+    action: warn
+  magic_numbers:
+    severity: low
+    action: suggest
+
+suppression:
+  marker: "@ai-review-suppress"
+  require_justification: true

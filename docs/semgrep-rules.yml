@@ -1,0 +1,11 @@
+rules:
+  - id: dynamic-playwright-goto
+    message: Dynamic page.goto() should use allowlisted URLs
+    severity: WARNING
+
+    languages:
+      - typescript
+      - javascript
+
+    pattern: |
+      page.goto($URL)
